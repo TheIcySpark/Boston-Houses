@@ -10,6 +10,7 @@ library(lubridate)
 library(ggplot2)
 library(factoextra)
 library(sets)
+library(ggcorrplot)
 ```
 Data description:
 
@@ -51,22 +52,28 @@ Density plots
 ```{r}
 ggplot(BostonHousing2, aes(x = cmedv)) + geom_histogram(bins = 30, aes(y = stat(density))) + geom_density(col="red")
 ```
-convert factors to numeric
+Create a variable with all values in numeric type
 ```{r}
-set = c("f")
-for(i in BostonHousing2["town"]){
-  if(!is.element(s, i)){
-    print(i)
-    append(set, i)
-  }
-}
-print(set)
+bostonHousingAllNumeric = BostonHousing2
 
+bostonHousingAllNumeric$town = as.numeric(bostonHousingAllNumeric$town)
+bostonHousingAllNumeric$chas = as.numeric(bostonHousingAllNumeric$chas)
+
+bostonHousingAllNumeric
 ```
 
 
 Correlation Matrix
 ```{r}
-cor(x = BostonHousing2)
+ggcorrplot(cor(bostonHousingAllNumeric), lab = TRUE, lab_size = 3)
+```
+Scatter Plot for rm
+```{r}
+ggplot(bostonHousingAllNumeric, aes(x = rm, y = cmedv)) + geom_point()
+```
+
+Scatter plot for lstat
+```{r}
+ggplot(bostonHousingAllNumeric, aes(x = lstat, y = cmedv)) + geom_point()
 ```
 
