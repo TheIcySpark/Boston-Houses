@@ -11,6 +11,8 @@ library(ggplot2)
 library(factoextra)
 library(sets)
 library(ggcorrplot)
+library(caret)
+library(car)
 ```
 Data description:
 
@@ -67,6 +69,8 @@ Correlation Matrix
 ```{r}
 ggcorrplot(cor(bostonHousingAllNumeric), lab = TRUE, lab_size = 3)
 ```
+From the correlation matrix we can infer that rm and lstat are the best variables to apply linear regression
+
 Scatter Plot for rm
 ```{r}
 ggplot(bostonHousingAllNumeric, aes(x = rm, y = cmedv)) + geom_point()
@@ -75,5 +79,44 @@ ggplot(bostonHousingAllNumeric, aes(x = rm, y = cmedv)) + geom_point()
 Scatter plot for lstat
 ```{r}
 ggplot(bostonHousingAllNumeric, aes(x = lstat, y = cmedv)) + geom_point()
+```
+
+Split training and testing data
+```{r}
+trainingTestingData = data.frame(rm = BostonHousing2$rm, 
+                                 lstat = BostonHousing2$lstat, cmedv = BostonHousing2$cmedv)
+
+trainTestIndex = createDataPartition(x$rm, p = 0.8, list = FALSE)
+```
+
+
+Testing data
+```{r}
+print(trainingTestingData[trainTestIndex,])
+```
+
+Training data
+```{r}
+print(trainingTestingData[-trainTestIndex,])
+```
+
+
+Make the linear regression model
+```{r}
+linearRegression = lm(formula = cmedv ~ rm + lstat, data = trainingTestingData[trainTestIndex,])
+summary(linearRegression)
+```
+
+print line for the linear regression model
+```{r}
+avPlots(linearRegression)
+```
+
+Predict on test set
+```{r}
+testResults = predict(linearRegression, trainingTestingData[-trainTestIndex,])
+
+ggplot(data.frame(x = trainingTestingData[-trainTestIndex,]$rm, y = testResults), 
+       aes(x = x, y = y)) + geom_point()
 ```
 
